@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -22,6 +23,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     ListView l;
@@ -44,7 +46,16 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
+        l.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Contact c = (Contact) adapterView.getItemAtPosition(i);
+                removeContact(c);
+                Toast.makeText(MainActivity.this, c.getDisplayName() + " removed", Toast.LENGTH_LONG).show();
+                return true;
+            }
+        });
+        getContacts();
         Button addContact = findViewById(R.id.addContact);
         Button sendMessage = findViewById(R.id.sendMessage);
         sendMessage.setOnClickListener(new View.OnClickListener() {
@@ -104,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
             cur.moveToFirst();
             String displayName = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
             String phoneNumber =cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            saveContact(displayName, phoneNumber);
             arr.add(new Contact(displayName, phoneNumber));
             l.invalidate();
 
@@ -132,4 +144,36 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    public void getContacts()
+    {
+        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+        Map<String, ?> allEntries = sharedPreferences .getAll();
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            arr.add(new Contact(entry.getKey(), entry.getValue().toString()));
+
+        }
+        if(!arr.isEmpty()) {
+            l.invalidate();
+        }
+
+
+    }
+    public void saveContact(String name, String number)
+    {
+        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(name, number);
+        editor.apply();
+    }
+    public void removeContact(Contact contactToRemove)
+    {
+        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(contactToRemove.getDisplayName());
+        editor.apply();
+        arr.remove(contactToRemove);
+        l.invalidate();
+    }
+
 }
