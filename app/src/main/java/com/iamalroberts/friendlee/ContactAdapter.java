@@ -37,5 +37,7 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
         return listItem;
     }
 
-
+//todo implement sort 
+//    public void sort() {
+//    }
 }

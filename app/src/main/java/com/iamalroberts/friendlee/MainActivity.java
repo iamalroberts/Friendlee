@@ -153,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
             arr.add(new Contact(entry.getKey(), entry.getValue().toString()));
 
         }
+
         if(!arr.isEmpty()) {
             l.invalidate();
         }
